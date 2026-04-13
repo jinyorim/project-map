@@ -89,9 +89,12 @@ function ProjectMap() {
       const yps = PROJECTS.filter(p =>
         typeof p.year === "number" ? p.year === yr : String(p.year).includes(String(yr))
       );
-      const gap = Math.min(16, 80 / Math.max(yps.length, 1));
-      yps.forEach((p, ri) => {
-        pos[p.id] = { x: colX[ci], y: 6 + ri * gap };
+      let topEdge = 48;
+      yps.forEach((p) => {
+        const h = p.star ? 72 : 60;
+        const center = topEdge + h / 2;
+        pos[p.id] = { x: colX[ci], yPx: center };
+        topEdge += h + 22 + 12;
       });
     });
     return pos;
@@ -128,8 +131,11 @@ function ProjectMap() {
   }, []);
 
   const getPos = useCallback((p) => {
-    if (isChrono && chronoPos[p.id]) return chronoPos[p.id];
-    return resolvedPos[p.id] || { x:p.mx, y:p.my };
+    if (isChrono && chronoPos[p.id]) {
+      return { x: chronoPos[p.id].x, yPx: chronoPos[p.id].yPx };
+    }
+    const r = resolvedPos[p.id] || { x:p.mx, y:p.my };
+    return { x: r.x, y: r.y };
   }, [isChrono, chronoPos, resolvedPos]);
 
   const isHi = useCallback((p) => {
@@ -144,26 +150,26 @@ function ProjectMap() {
       width:"100%", maxWidth:1440, margin:"0 auto",
       aspectRatio:"16/9", background:"#fff",
       fontFamily:"'Pretendard',sans-serif",
-      position:"relative", overflow:"hidden",
+      position:"relative", overflow:"visible",
     }}>
       {/* Header */}
       <div style={{
-        position:"relative", zIndex:10, padding:"14px 28px 2px",
+        position:"relative", zIndex:10, padding:"80px 28px 0",
         textAlign:"center",
       }}>
         <div style={{
-          fontSize:18, fontWeight:300, color:"#000",
-          fontFamily:"'Pretendard'", letterSpacing:"0.06em",
+          fontSize:22, fontWeight:300, color:"#000",
+          fontFamily:"'Pretendard'", letterSpacing:"0.08em",
         }}>Hyorim Jin</div>
         <div style={{
-          fontSize:10, color:"#999", marginTop:1,
+          fontSize:10, color:"#999", marginTop:6,
           fontFamily:"'Pretendard'", fontWeight:300,
         }}>사람과 기술 사이의 블루프린트를 그리는 프로덕트 디자이너 — Project Mapping 2021–2026</div>
       </div>
 
       {/* Tags */}
       <div style={{
-        position:"relative", zIndex:10, padding:"4px 28px 6px",
+        position:"relative", zIndex:10, padding:"14px 28px 16px",
         display:"flex", gap:6, alignItems:"center", justifyContent:"center",
       }}>
         <button onClick={() => setActiveTag(null)} style={{
@@ -202,7 +208,7 @@ function ProjectMap() {
       {/* Map */}
       <div style={{
         position:"relative", margin:"0 28px",
-        height:"calc(100% - 80px)",
+        height:"calc(100% - 166px)",
       }}>
         {/* Axes */}
         {!isChrono && (
@@ -229,10 +235,10 @@ function ProjectMap() {
           <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:1}}>
             {[{x:10,yr:2021},{x:28,yr:2022},{x:46,yr:2023},{x:64,yr:2024},{x:82,yr:2025}].map(c => (
               <g key={c.yr}>
-                <line x1={`${c.x}%`} y1="5%" x2={`${c.x}%`} y2="98%"
+                <line x1={`${c.x}%`} y1="36" x2={`${c.x}%`} y2="98%"
                   stroke="rgba(0,0,0,0.06)" strokeWidth="0.5"/>
-                <text x={`${c.x}%`} y="2.5%" fill="rgba(0,0,0,0.6)" fontSize="14"
-                  fontFamily="'Pretendard'" fontWeight="500" textAnchor="middle" letterSpacing="0.06em">
+                <text x={`${c.x}%`} y="22" fill="rgba(0,0,0,0.7)" fontSize="15"
+                  fontFamily="'Pretendard'" fontWeight="600" textAnchor="middle" letterSpacing="0.06em">
                   {c.yr}{c.yr===2025?"+":""}
                 </text>
               </g>
@@ -252,7 +258,7 @@ function ProjectMap() {
               onMouseLeave={()=>setHovered(null)}
               style={{
                 position:"absolute",
-                left:`${pos.x}%`, top:`${pos.y}%`,
+                left:`${pos.x}%`, top: pos.yPx != null ? `${pos.yPx}px` : `${pos.y}%`,
                 transform:`translate(-50%,-50%) scale(${isHov?1.08:1})`,
                 width:s, height:s,
                 zIndex:isHov?25:highlighted?10:3,
