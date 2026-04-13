@@ -84,12 +84,13 @@ function ProjectMap() {
 
   const chronoPos = useMemo(() => {
     const pos = {};
+    const colX = [10, 28, 46, 64, 82];
     YEARS.forEach((yr, ci) => {
       const yps = PROJECTS.filter(p =>
         typeof p.year === "number" ? p.year === yr : String(p.year).includes(String(yr))
       );
       yps.forEach((p, ri) => {
-        pos[p.id] = { x: 6 + ci * 19, y: 10 + ri * (78 / Math.max(yps.length, 1)) };
+        pos[p.id] = { x: colX[ci], y: 12 + ri * 14 };
       });
     });
     return pos;
@@ -147,24 +148,22 @@ function ProjectMap() {
       {/* Header */}
       <div style={{
         position:"relative", zIndex:10, padding:"14px 28px 2px",
-        display:"flex", justifyContent:"space-between", alignItems:"flex-end",
+        textAlign:"center",
       }}>
-        <div>
-          <div style={{
-            fontSize:18, fontWeight:300, color:"#000",
-            fontFamily:"'Pretendard'", letterSpacing:"0.06em",
-          }}>Hyorim Jin</div>
-          <div style={{
-            fontSize:10, color:"#999", marginTop:1,
-            fontFamily:"'Pretendard'", fontWeight:300,
-          }}>사람과 기술 사이의 블루프린트를 그리는 프로덕트 디자이너 — Project Mapping 2021–2026</div>
-        </div>
+        <div style={{
+          fontSize:18, fontWeight:300, color:"#000",
+          fontFamily:"'Pretendard'", letterSpacing:"0.06em",
+        }}>Hyorim Jin</div>
+        <div style={{
+          fontSize:10, color:"#999", marginTop:1,
+          fontFamily:"'Pretendard'", fontWeight:300,
+        }}>사람과 기술 사이의 블루프린트를 그리는 프로덕트 디자이너 — Project Mapping 2021–2026</div>
       </div>
 
       {/* Tags */}
       <div style={{
         position:"relative", zIndex:10, padding:"4px 28px 6px",
-        display:"flex", gap:6, alignItems:"center",
+        display:"flex", gap:6, alignItems:"center", justifyContent:"center",
       }}>
         <button onClick={() => setActiveTag(null)} style={{
           padding:"4px 12px", fontSize:11, fontWeight:!activeTag?500:400,
@@ -190,7 +189,6 @@ function ProjectMap() {
             </button>
           );
         })}
-        <div style={{flex:1}}/>
         <button onClick={()=>setActiveTag(isChrono?null:"시간순")} style={{
           padding:"4px 12px", fontSize:11, fontWeight:isChrono?500:400,
           border:isChrono?"1.5px solid #000":"1px solid #ddd",
@@ -228,13 +226,13 @@ function ProjectMap() {
         {/* Chrono */}
         {isChrono && (
           <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:1}}>
-            {YEARS.map((yr,i) => (
-              <g key={yr}>
-                <line x1={`${6+i*19}%`} y1="7%" x2={`${6+i*19}%`} y2="95%"
+            {[{x:10,yr:2021},{x:28,yr:2022},{x:46,yr:2023},{x:64,yr:2024},{x:82,yr:2025}].map(c => (
+              <g key={c.yr}>
+                <line x1={`${c.x}%`} y1="8%" x2={`${c.x}%`} y2="96%"
                   stroke="rgba(0,0,0,0.06)" strokeWidth="0.5"/>
-                <text x={`${6+i*19}%`} y="5%" fill="rgba(0,0,0,0.5)" fontSize="14"
+                <text x={`${c.x}%`} y="5%" fill="rgba(0,0,0,0.6)" fontSize="14"
                   fontFamily="'Pretendard'" fontWeight="500" textAnchor="middle" letterSpacing="0.06em">
-                  {yr}{yr===2025?"+":""}
+                  {c.yr}{c.yr===2025?"+":""}
                 </text>
               </g>
             ))}
@@ -265,11 +263,13 @@ function ProjectMap() {
                 width:"100%", height:"100%",
                 overflow:"hidden", position:"relative",
                 boxShadow:isHov?"0 6px 20px rgba(0,30,100,0.2)":"0 1px 4px rgba(0,0,0,0.06)",
-                filter:isHov?"none":"grayscale(1) sepia(1) hue-rotate(190deg) saturate(0.5) brightness(0.9)",
-                transition:"filter 0.4s ease, box-shadow 0.3s",
+                transition:"box-shadow 0.3s",
               }}>
                 {p.img ? (
-                  <img src={p.img} alt={p.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                  <img src={p.img} alt={p.name} style={{width:"100%",height:"100%",objectFit:"cover",
+                    filter:isHov?"none":"grayscale(1) brightness(0.55) contrast(1.1)",
+                    transition:"filter 0.4s ease",
+                  }}/>
                 ) : (
                   <div style={{
                     width:"100%",height:"100%",
@@ -277,6 +277,8 @@ function ProjectMap() {
                     display:"flex",alignItems:"center",justifyContent:"center",
                     fontSize:p.star?18:13, fontWeight:300, color:"#999",
                     fontFamily:"'IBM Plex Mono'", opacity:0.6,
+                    filter:isHov?"none":"grayscale(1) brightness(0.55) contrast(1.1)",
+                    transition:"filter 0.4s ease",
                   }}>{String(p.id).padStart(2,"0")}</div>
                 )}
                 <div style={{
